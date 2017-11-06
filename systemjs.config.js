@@ -19,7 +19,7 @@
     'client':                     { main: 'main.js',  defaultExtension: 'js' },
     'rxjs':                       { defaultExtension: 'js' },
     'angular2-in-memory-web-api': { main: 'index.js', defaultExtension: 'js' },
-    'ng2-file-upload' :           { main: './ng2-file-upload.js', defaultExtension: 'js'}
+    'ng2-file-upload' :           { main: 'ng2-file-upload.js', defaultExtension: 'js'}
   };
   var ngPackageNames = [
     'common',

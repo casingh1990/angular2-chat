@@ -8,10 +8,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 exports.__esModule = true;
 var core_1 = require("@angular/core");
 var globalVars = require("../service/global");
-var ng2_file_upload_1 = require("ng2-file-upload");
+//import { FileUploader } from 'ng2-file-upload';
 /// <reference path="../../typings/globals/jquery/index.d.ts/>
 require("/socket.io/socket.io.js");
 var ChatComponent = /** @class */ (function () {
+    //public uploader:FileUploader = new FileUploader({url:'http://casingh.me:3000/upload'});
     function ChatComponent() {
         this.resFlag = false;
         this.newUser = false;
@@ -20,7 +21,6 @@ var ChatComponent = /** @class */ (function () {
         this.exitedUserName = null;
         this.sentMessageUsername = null;
         this.msgCount = 0;
-        this.uploader = new ng2_file_upload_1.FileUploader({ url: 'http://casingh.me:3000/upload' });
         var reference = this;
         var temp;
         var tmp_height;

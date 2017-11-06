@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 import * as globalVars from "../service/global";
-import { FileUploader } from 'ng2-file-upload';
+//import { FileUploader } from 'ng2-file-upload';
 
 /// <reference path="../../typings/globals/jquery/index.d.ts/>
 
@@ -27,7 +27,7 @@ export class ChatComponent {
     message: string;
     msgCount: number = 0;
 
-    public uploader:FileUploader = new FileUploader({url:'http://casingh.me:3000/upload'});
+    //public uploader:FileUploader = new FileUploader({url:'http://casingh.me:3000/upload'});
 
     constructor() {
         let reference = this;
