@@ -12,6 +12,59 @@ chat_app.use(express.static(__dirname, '/'));
 chat_app.use(express.static(__dirname, '/server/'));
 chat_app.use(express.static(__dirname + "/..", '/client/'));
 chat_app.use(express.static(__dirname + '/node_modules'));
+chat_app.use(bodyParser.json());
+
+var storage = multer.diskStorage({ //multers disk storage settings
+    destination: function (req, file, cb) {
+        cb(null, '../uploads/');
+    },
+    filename: function (req, file, cb) {
+        var datetimestamp = Date.now();
+        cb(null, file.originalname);// + '-' + datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]);
+    }
+});
+
+
+
+var upload = multer({ //multer settings
+                storage: storage
+            }).single('file');
+
+/** API path that will upload the files */
+chat_app.post('/upload', function(req, res) {
+    upload(req,res,function(err){
+        console.log(req.file.path);
+        if(err){
+             res.json({error_code:1,err_desc:err});
+             return;
+        }
+
+         let name = "";
+         let url_text = '<a href="/file/' + req.file.originalname + '">' + req.file.originalname + '</a>';
+         //let sockectObj = {name, url};
+         res.json({error_code:0,err_desc:null,url:url_text});
+     		//io.emit('broadcastToAll_chatMessage', sockectObj);
+    });
+});
+
+chat_app.get('/file/:name', function(req, res) {
+  var options = {
+    root: '../uploads/',
+    dotfiles: 'deny',
+    headers: {
+        'x-timestamp': Date.now(),
+        'x-sent': true
+    }
+  };
+  var fileName = req.params.name;
+  res.sendFile(fileName, options, function (err) {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log('Sent:', fileName);
+    }
+  });
+});
 
 chat_app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');

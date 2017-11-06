@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 import * as globalVars from "../service/global";
-//import { FileUploader } from 'ng2-file-upload';
+import { FileUploader } from 'ng2-file-upload';
 
 /// <reference path="../../typings/globals/jquery/index.d.ts/>
 
@@ -27,14 +27,23 @@ export class ChatComponent {
     message: string;
     msgCount: number = 0;
 
-    //public uploader:FileUploader = new FileUploader({url:'http://casingh.me:3000/upload'});
+    public uploader:FileUploader = new FileUploader({url:'http://casingh.me:3000/upload'});
 
     constructor() {
         let reference = this;
         let temp;
         let tmp_height;
+
+        this.uploader.onSuccessItem = (item:FileItem, response:string, status:number, headers:ParsedResponseHeaders)
+          => { console.log("onSuccessItem " + status, response, item);
+        if(response) {
+          let data = {value:response.url};
+          //this.sendMessage(data);
+        } };
+
         globalVars.socket.on("broadcastToAll_chatMessage", function(resObj) {
             reference.msgCount++;
+            let html = false;
             if (reference.sentMessageUsername !== resObj.name) {
                 resObj.name = resObj.name + ": ";
                 temp = $("#messages").length;
@@ -43,13 +52,13 @@ export class ChatComponent {
                 $("#messages").append($("<li data-index=" + reference.msgCount + ">"));
                 $("li[data-index=" + reference.msgCount + "]").append($("<div class='left-msg' data-index=" + reference.msgCount + ">"));
                 $("div[data-index=" + reference.msgCount + "]").append($("<span class='name'>").text(resObj.name));
-                $("div[data-index=" + reference.msgCount + "]").append($("<span class='msg'>").text(resObj.msg));
+                $("div[data-index=" + reference.msgCount + "]").append($("<span class='msg'>").html(resObj.msg));
                 $("#messages").append($("<br>"));
             }
             else if (reference.sentMessageUsername === resObj.name) {
                 $("#messages").append($("<li data-index=" + reference.msgCount + ">"));
                 $("li[data-index=" + reference.msgCount + "]").append($("<div class='right-msg' data-index=" + reference.msgCount + ">"));
-                $("div[data-index=" + reference.msgCount + "]").append($("<span class='msg'>").text(resObj.msg));
+                $("div[data-index=" + reference.msgCount + "]").append($("<span class='msg'>").html(resObj.msg));
                  $("#messages").append($("<br>"));
                 reference.sentMessageUsername = null;
             }
@@ -80,11 +89,18 @@ export class ChatComponent {
     sendMessage(data) {
         this.resFlag = true;
         let reference = this;
+        //alert(reference.uploader.queue[0].file.name);
+        data.value = $("<div/>").html(data.value).text();
+        let i=0;
+        for (i=0;i<reference.uploader.queue.length; i++){
+          data.value += "<a href=\"/file/" + reference.uploader.queue[i].file.name + "\">" + reference.uploader.queue[i].file.name "</a><br />";
+        }
         globalVars.socket.emit("chatMessageToSocketServer", data.value, function(respMsg, username){
             reference.sentMessageUsername = username;
             reference.response = respMsg;
         });
         $("#message-boxID").val(" ");
+        reference.uploader.uploadAll();
     }
 
     sendMessageOnEnter($event, messagebox) {

@@ -9,13 +9,14 @@ exports.__esModule = true;
 var core_1 = require("@angular/core");
 var common_1 = require("@angular/common");
 var chat_component_1 = require("./chat.component");
+var ng2_file_upload_1 = require("ng2-file-upload");
 var ChatModule = /** @class */ (function () {
     function ChatModule() {
     }
     ChatModule = __decorate([
         core_1.NgModule({
             imports: [common_1.CommonModule],
-            declarations: [chat_component_1.ChatComponent],
+            declarations: [chat_component_1.ChatComponent, ng2_file_upload_1.FileSelectDirective],
             exports: [chat_component_1.ChatComponent]
         })
     ], ChatModule);
