@@ -1,6 +1,7 @@
 <html>
   <head>
-    <title>Angular2_Node_chatApp</title>
+    <title>Angular2 Chat Demo</title>
+    <meta name="viewport" content="width=device-width">
   </head>
   <body >
     <div>
@@ -15,21 +16,27 @@
                 </div>
               </div>
             </div>
+            <div id="upload_progress" *ngFor="let item of uploader.queue">
+                <strong>{{ item.file.name }}</strong>
+                {{ item.file.size/1024/1024 | number:'.2' }} MB
+                <span class="progress" style="margin-bottom: 0;">
+                        <span class="progress-bar" role="progressbar" [ngStyle]="{ 'width': item.progress + '%' }"></span>
+                </span>
+            </div>
             <div class="enter-message">
               <input id="message-boxID"
               #messagebox placeholder="Type your message here"
               (keyup)="sendMessageOnEnter($event, messagebox)"  (keydown)="update()" value="" autofocus required />
-              <button class="send" (click)="sendMessage(messagebox)">
-                <img src="/send.png" alt="Send" id="button_image" />
+              <button id="send" class="send" (click)="sendMessage(messagebox)">
+                <img src="/send.png" alt="Send" id="send_image" class="button_image" />
               </button>
-              <input type="file" class="form-control" name="single" ng2FileSelect [uploader]="uploader" />
-              <span id="upload_progress" *ngFor="let item of uploader.queue">
-                  <strong>{{ item.file.name }}</strong>
-                  {{ item.file.size/1024/1024 | number:'.2' }} MB
-                  <span class="progress" style="margin-bottom: 0;">
-                          <span class="progress-bar" role="progressbar" [ngStyle]="{ 'width': item.progress + '%' }"></span>
-                  </span>
-              </span>
+
+              <span id="file_upload_span"><label for="file_selector" id="file_upload_button_label" ><img src="/attach.png" id="upload_img" class="button_image" alt="upload" /></label></span>
+
+              <input type="file" class="form-control" id="file_selector" name="single" ng2FileSelect [uploader]="uploader"
+              onchange="if (this.value){$('#upload_progress').show(); $('#file_upload_span').css('background-color', 'green');}
+                else{$('#file_upload_span').css('background-color', '');}"
+               />
             </div>
           </div>
         </div>

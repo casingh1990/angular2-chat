@@ -1,9 +1,10 @@
 <html>
   <head>
-    <title>Angular2_Node_chatApp</title>
-    
+    <title>Angular2 Chat Demo</title>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1"><!-- -->
+    <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" href="/styles.css" />
     <base href="/">
     <!-- 1. Load libraries -->
@@ -13,7 +14,7 @@
     <script src="node_modules/reflect-metadata/Reflect.js"></script>
     <script src="node_modules/systemjs/dist/system.src.js"></script>
     <script src="node_modules/jquery/dist/jquery.js"></script>
-     
+
     <!-- 2. Configure SystemJS -->
     <script src="systemjs.config.js"></script>
     <script src="socket.io/socket.io.js"></script>
@@ -22,6 +23,8 @@
       //Client Code(Angular2)
        System.import('client').catch(function(err){ console.error(err); });
     </script>
+    <link rel="stylesheet" href="css/jquery.emojipicker.css" />
+    <script src="js/jquery.emojipicker.js"></script>
   </head>
   <!-- 3. Display the application -->
   <body>

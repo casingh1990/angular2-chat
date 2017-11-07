@@ -13,6 +13,7 @@ var ng2_file_upload_1 = require("ng2-file-upload");
 require("/socket.io/socket.io.js");
 var ChatComponent = /** @class */ (function () {
     function ChatComponent() {
+        var _this = this;
         this.resFlag = false;
         this.newUser = false;
         this.exitedUser = false;
@@ -20,20 +21,40 @@ var ChatComponent = /** @class */ (function () {
         this.exitedUserName = null;
         this.sentMessageUsername = null;
         this.msgCount = 0;
-        this.uploader = new ng2_file_upload_1.FileUploader({ url: 'http://casingh.me:3000/upload' });
+        this.uploader = new ng2_file_upload_1.FileUploader({ url: 'http://casingh.me:3000/upload', queueLimit: 1,
+            removeAfterUpload: true });
         var reference = this;
         var temp;
         var tmp_height;
         this.uploader.onSuccessItem = function (item, response, status, headers) {
             console.log("onSuccessItem " + status, response, item);
             if (response) {
-                var data = { value: response.url };
-                //this.sendMessage(data);
+                $("#upload_progress").hide();
+                _this.resetFormElement($('#file_selector'));
+                $('#file_upload_span').css('background-color', '');
             }
         };
         globalVars.socket.on("broadcastToAll_chatMessage", function (resObj) {
             reference.msgCount++;
             var html = false;
+            var embed;
+            resObj.msg = resObj.msg.trim();
+            if (!resObj.msg) {
+                return;
+            }
+            var text = true;
+            if ((resObj.msg.toLowerCase().indexOf("https://www.youtube.com/watch?v=") == 0)
+                || (resObj.msg.toLowerCase().indexOf("https://youtu.be/") == 0)) {
+                text = false;
+                if ((resObj.msg.toLowerCase().indexOf("https://youtu.be/") == 0)) {
+                    embed = resObj.msg.replace("https://youtu.be/", "https://www.youtube.com/embed/");
+                }
+                else {
+                    embed = resObj.msg.replace("https://www.youtube.com/watch?v=", "https://www.youtube.com/embed/");
+                }
+                resObj.msg = '<div class="video_wrapper"><div class="h_iframe"><img class="ratio" src="http://placehold.it/16x9" frameborder="0" allowfullscreen/>'
+                    + '<iframe src="' + embed + '" frameborder="0" allowfullscreen></iframe></div></div>';
+            }
             if (reference.sentMessageUsername !== resObj.name) {
                 resObj.name = resObj.name + ": ";
                 temp = $("#messages").length;
@@ -44,6 +65,7 @@ var ChatComponent = /** @class */ (function () {
                 $("div[data-index=" + reference.msgCount + "]").append($("<span class='name'>").text(resObj.name));
                 $("div[data-index=" + reference.msgCount + "]").append($("<span class='msg'>").html(resObj.msg));
                 $("#messages").append($("<br>"));
+                reference.notifyMe(resObj.msg.substring(0, 30));
             }
             else if (reference.sentMessageUsername === resObj.name) {
                 $("#messages").append($("<li data-index=" + reference.msgCount + ">"));
@@ -71,6 +93,26 @@ var ChatComponent = /** @class */ (function () {
             reference.exitedUserName = username;
         });
     }
+    ChatComponent.prototype.notifyMe = function (msg) {
+        // Let's check if the browser supports notifications
+        if (!("Notification" in window)) {
+            //alert("This browser does not support desktop notification");
+        }
+        else if (Notification.permission === "granted") {
+            // If it's okay let's create a notification
+            var notification = new Notification(msg);
+        }
+        else if (Notification.permission !== "denied") {
+            Notification.requestPermission(function (permission) {
+                // If the user accepts, let's create a notification
+                if (permission === "granted") {
+                    var notification = new Notification(msg);
+                }
+            });
+        }
+        // At last, if the user has denied notifications, and you
+        // want to be respectful there is no need to bother them any more.
+    };
     ChatComponent.prototype.sendMessage = function (data) {
         this.resFlag = true;
         var reference = this;
@@ -78,7 +120,7 @@ var ChatComponent = /** @class */ (function () {
         data.value = $("<div/>").html(data.value).text();
         var i = 0;
         for (i = 0; i < reference.uploader.queue.length; i++) {
-            data.value += "<a href=\"/file/" + reference.uploader.queue[i].file.name + "\">" + reference.uploader.queue[i].file.name;
+            data.value += " <a target=\"blank\" href=\"/file/" + reference.uploader.queue[i].file.name + "\">" + reference.uploader.queue[i].file.name;
             "</a><br />";
         }
         globalVars.socket.emit("chatMessageToSocketServer", data.value, function (respMsg, username) {
@@ -86,7 +128,12 @@ var ChatComponent = /** @class */ (function () {
             reference.response = respMsg;
         });
         $("#message-boxID").val(" ");
+        $("#upload_progress").show();
         reference.uploader.uploadAll();
+    };
+    ChatComponent.prototype.resetFormElement = function (e) {
+        e.wrap('<form>').closest('form').get(0).reset();
+        e.unwrap();
     };
     ChatComponent.prototype.sendMessageOnEnter = function ($event, messagebox) {
         if ($event.which === 13) {
